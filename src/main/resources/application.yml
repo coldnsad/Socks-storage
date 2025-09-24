@@ -1,0 +1,32 @@
+spring:
+  application:
+    name: socks-storage
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/socks
+    username: myuser
+    password: mypassword
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+#logging:
+#  level:
+#    root: debug
+#  file:
+#    name: app/app.log
+
+#SWAGGER
+#http://localhost:8080/swagger-ui/index.html
+springdoc:
+  swagger-ui:
+      enabled: true
+  api-docs:
+    enabled: true
+
+api:
+  server:
+    url: http://localhost:8080
