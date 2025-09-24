@@ -1,0 +1,52 @@
+services:
+  db:
+    image: postgres:latest
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: socks
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+#  socks-app:
+#    build: .
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/socks
+#      SPRING_DATASOURCE_USERNAME: myuser
+#      SPRING_DATASOURCE_PASSWORD: mypassword
+#      SPRING_JPA_HIBERNATE_DDL_AUTO: update
+#    depends_on:
+#      - db
+
+#  pgadmin:
+#    image: dpage/pgadmin4:7
+#    container_name: pg-admin
+#    environment:
+#      PGADMIN_DEFAULT_EMAIL: myuser@email.com
+#      PGADMIN_DEFAULT_PASSWORD: mypassword
+#    ports:
+#      - "8083:80"
+#    depends_on:
+#      - db
+volumes:
+  postgres_data:
+
+
+#Запуск сервисов
+# docker-compose up -d
+
+#Остановка сервисов
+# docker-compose down
+
+#Перезапустить с пересозданием
+# docker-compose up -d --build
+
+#Зайти внутрь контейнера, если имеется bash
+# docker exec -it postgres_db /bin/bash
+
+
