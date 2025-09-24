@@ -36,6 +36,4 @@ out/
 ### VS Code ###
 .vscode/
 
-
-/app/
-/src/test/java/org/example/socks/controller/
+app/
