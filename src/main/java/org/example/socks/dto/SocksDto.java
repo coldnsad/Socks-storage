@@ -3,7 +3,9 @@ package org.example.socks.dto;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
 
+@Builder
 public record SocksDto(
         Long id,
         @NotNull

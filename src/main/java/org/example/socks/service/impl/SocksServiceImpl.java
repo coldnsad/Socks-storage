@@ -2,8 +2,9 @@ package org.example.socks.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.example.socks.Mapper.SocksMapper;
+import org.example.socks.mapper.SocksMapper;
 import org.example.socks.dto.SocksDto;
+import org.example.socks.dto.filter.FilteredSocksDto;
 import org.example.socks.dto.filter.SocksFilterDto;
 import org.example.socks.exception.SocksNotEnoughException;
 import org.example.socks.exception.SocksNotFoundException;
@@ -36,7 +37,7 @@ public class SocksServiceImpl implements SocksService {
         Optional<Socks> existingSocks = socksRepository
                 .findByColorAndCottonPercentage(socksDto.color(), socksDto.cottonPercentage());
         if(existingSocks.isPresent()){
-            existingSocks.get().setCount(socksDto.count());
+            existingSocks.get().setCount(existingSocks.get().getCount() + socksDto.count());
             log.info("Socks with id {} updated successfully",  existingSocks.get().getId());
             return socksRepository.save(existingSocks.get());
         }
@@ -46,12 +47,18 @@ public class SocksServiceImpl implements SocksService {
     }
 
     @Override
-    public List<SocksDto> getSocks(SocksFilterDto socksFilterDto, Pageable pageable) {
+    public FilteredSocksDto getSocks(SocksFilterDto socksFilterDto, Pageable pageable) {
         log.info("Getting socks ...");
         Specification<Socks> specification = SocksSpecificationUtil.build(socksFilterDto);
         Page<Socks> socksPages = socksRepository.findAll(specification, pageable);
         List<Socks> socksList = socksPages.getContent();
-        return socksMapper.toDtos(socksList);
+        return FilteredSocksDto.builder()
+                .content(socksMapper.toDtos(socksList))
+                .pageNumber(socksPages.getNumber())
+                .elementsPerPage(socksPages.getNumberOfElements())
+                .countPages(socksPages.getTotalPages())
+                .countElements(socksPages.getTotalElements())
+                .build();
     }
 
     @Override

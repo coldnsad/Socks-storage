@@ -1,4 +1,4 @@
-package org.example.socks.Mapper;
+package org.example.socks.mapper;
 
 import org.example.socks.dto.SocksDto;
 import org.example.socks.model.Socks;
