@@ -1,6 +1,7 @@
 package org.example.socks.unit;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.SneakyThrows;
 import org.example.socks.cases.EnumCases;
 import org.example.socks.controller.SocksController;
 import org.example.socks.dto.SocksDto;
@@ -41,7 +42,8 @@ public class SocksControllerTest {
 
     @Test
     @DisplayName("Тест проверяет работу Endpoint прихода носков")
-    void incomeSocks_WhenValidRequest_ReturnsCreatedStatus() throws Exception {
+    @SneakyThrows
+    void incomeSocks_WhenValidRequest_ReturnsCreatedStatus() {
         //Подготовка
         SocksDto socksDto = SocksDto.builder()
                 .color("green")
@@ -67,7 +69,8 @@ public class SocksControllerTest {
 
     @Test
     @DisplayName("Тест проверяет работу Endpoint получения носков с фильтрацией и пагинацией")
-    void getSocks_WhenValidRequest_ReturnsOkStatusAndListOfPageSocksDto() throws Exception {
+    @SneakyThrows
+    void getSocks_WhenValidRequest_ReturnsOkStatusAndListOfPageSocksDto() {
         //Подготовка
         SocksDto socksDto1 = SocksDto.builder()
                 .color("green")
@@ -105,7 +108,8 @@ public class SocksControllerTest {
     @ParameterizedTest
     @EnumSource(EnumCases.class)
     @DisplayName("Тест проверяет возвращаемый статус при обновлении носков")
-    void updateSocks_ReturnsOkOrBadRequestStatus(EnumCases cases) throws Exception {
+    @SneakyThrows
+    void updateSocks_ReturnsOkOrBadRequestStatus(EnumCases cases) {
         //Подготовка
         SocksDto socksDto = SocksDto.builder()
                 .color("green")

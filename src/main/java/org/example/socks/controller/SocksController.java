@@ -26,7 +26,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/api/socks")
+@RequestMapping("/api/v1/socks")
 @Validated
 public class SocksController {
 
@@ -46,8 +46,8 @@ public class SocksController {
     @Tag(name = "Get")
     @GetMapping()
     public ResponseEntity<FilteredSocksDto> getSocks(@ParameterObject SocksFilterDto socksFilterDto, @ParameterObject Pageable pageable) {
-        FilteredSocksDto filteresReult = socksService.getSocks(socksFilterDto, pageable);
-        return ResponseEntity.ok().body(filteresReult);
+        FilteredSocksDto filteredResult = socksService.getSocks(socksFilterDto, pageable);
+        return ResponseEntity.ok(filteredResult);
     }
 
     @Tag(name = "Post")

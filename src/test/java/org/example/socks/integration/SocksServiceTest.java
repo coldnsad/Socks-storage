@@ -1,6 +1,9 @@
 package org.example.socks.integration;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.validation.ConstraintViolationException;
+import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import org.example.socks.dto.SocksDto;
 import org.example.socks.exception.SocksNotEnoughException;
 import org.example.socks.model.Socks;
@@ -9,11 +12,11 @@ import org.example.socks.service.SocksService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestConstructor;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -25,6 +28,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @SpringBootTest()
 @AutoConfigureMockMvc
+@RequiredArgsConstructor
+@TestConstructor(autowireMode = TestConstructor.AutowireMode.ALL)
 public class SocksServiceTest {
 
     //Использование тестовой БД в docker-контейнере
@@ -33,14 +38,13 @@ public class SocksServiceTest {
     @ServiceConnection
     static PostgreSQLContainer<?> postgreSQLContainer = new PostgreSQLContainer<>("postgres:15");
 
-    @Autowired
-    MockMvc mockMvc;
-    @Autowired
-    ObjectMapper objectMapper;
-    @Autowired
-    SocksService socksService;
-    @Autowired
-    SocksRepository socksRepository;
+    private final MockMvc mockMvc;
+
+    private final ObjectMapper objectMapper;
+
+    private final SocksService socksService;
+
+    private final SocksRepository socksRepository;
 
     //Чистим БД после каждого теста, чтобы не было ошибок дубликатов
     @AfterEach
@@ -50,7 +54,8 @@ public class SocksServiceTest {
 
     @Test
     @DisplayName("Тест проверяет процесс отпуска носков, если их достаточно на складе")
-    void outcomeSocks_WhenSocksIsEnough_ThenUpdateSocksEntity() throws Exception {
+    @SneakyThrows
+    void outcomeSocks_WhenSocksIsEnough_ThenUpdateSocksEntity() {
         //Подготовка
         SocksDto socksDto = SocksDto.builder()
                 .color("green")
@@ -95,6 +100,43 @@ public class SocksServiceTest {
 
         //Действие и проверка
         assertThrows(SocksNotEnoughException.class, () -> socksService.outcomeSocks(socksDto));
+    }
+
+    @Test
+    @DisplayName("Тест проверяет процесс прихода носков для случая, когда носки существуют")
+    void incomeSocks_WhenSocksIsExisting_ThenUpdateCountSocks() {
+        //Подготовка
+        SocksDto socksDto = SocksDto.builder()
+                .color("green")
+                .cottonPercentage(2)
+                .count(3)
+                .build();
+        Socks createdSocks = Socks.builder()
+                .color("green")
+                .cottonPercentage(2)
+                .count(2)
+                .build();
+        socksRepository.save(createdSocks);
+        socksService.addSocks(socksDto);
+
+        //Действие и проверка
+        Socks updatedSocks = socksRepository.
+                findByColorAndCottonPercentage(socksDto.color(), socksDto.cottonPercentage()).get();
+        assertThat(updatedSocks.getCount()).isEqualTo(5);
+    }
+
+    @Test
+    @DisplayName("Тест проверяет процесс прихода носков для случая, когда носки существуют")
+    void validateJpa_WhenSocksLessThanZero_ThenThrowsException() {
+        //Подготовка
+        SocksDto socksDto = SocksDto.builder()
+                .color("green")
+                .cottonPercentage(2)
+                .count(-1)
+                .build();
+
+        //Действие и проверка
+        assertThrows(ConstraintViolationException.class, () -> socksService.addSocks(socksDto));
     }
 
 }

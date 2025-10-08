@@ -2,6 +2,9 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.6'
     id 'io.spring.dependency-management' version '1.1.7'
+    id 'com.dorongold.task-tree' version '2.1.1'
+    //Плагин для публикации в m2.
+    id 'maven-publish'
 }
 
 group = 'org.example'
@@ -20,7 +23,20 @@ configurations {
     }
 }
 
+//Публикация в m2.
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+        }
+    }
+    repositories {
+        mavenLocal()
+    }
+}
+
 repositories {
+    mavenLocal()
     mavenCentral()
 }
 
@@ -31,15 +47,21 @@ dependencies {
     implementation 'org.mapstruct:mapstruct:1.6.3'
     implementation("org.apache.poi:poi-ooxml:5.4.1")
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
+
     compileOnly 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+
     runtimeOnly 'org.postgresql:postgresql'
-    annotationProcessor 'org.projectlombok:lombok'
-    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:postgresql'
     testImplementation 'org.testcontainers:junit-jupiter'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+    annotationProcessor 'org.projectlombok:lombok'
+    annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+    testAnnotationProcessor 'org.projectlombok:lombok'
 }
 
 tasks.named('test') {
