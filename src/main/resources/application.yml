@@ -18,7 +18,10 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
 
 #logging:
 #  level:
@@ -37,3 +40,6 @@ springdoc:
 api:
   server:
     url: http://localhost:8080
+jwt:
+  token: jwt12561bit1secret1key1here11234567890d123dasd213121
+  expiration: 900000 #15 min
