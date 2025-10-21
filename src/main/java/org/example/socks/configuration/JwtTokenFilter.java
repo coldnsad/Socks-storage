@@ -6,18 +6,22 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.example.socks.service.JwtService;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.web.servlet.HandlerExceptionResolver;
 
 import java.io.IOException;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class JwtTokenFilter extends OncePerRequestFilter {
 
+    private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
 
     @Override
@@ -29,13 +33,17 @@ public class JwtTokenFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+        try {
+            if (jwtService.isTokenValid(token)) {
+                Authentication auth = jwtService.getAuthentication(token);
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
 
-        if (jwtService.isTokenValid(token)) {
-            Authentication auth = jwtService.getAuthentication(token);
-            SecurityContextHolder.getContext().setAuthentication(auth);
+            filterChain.doFilter(request, response);
+        } catch (Exception e) {
+            log.error(e.getMessage(), e);
+            handlerExceptionResolver.resolveException(request, response, null, e);
         }
-
-        filterChain.doFilter(request, response);
     }
 
     private String getTokenFromRequest(HttpServletRequest request) {

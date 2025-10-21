@@ -13,6 +13,7 @@ import org.example.socks.service.JwtService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -39,6 +40,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public LoginResponseDto login(LoginDto loginDto) {
+        User user = userRepository.findByEmail(loginDto.email())
+                .orElseThrow(() -> new UsernameNotFoundException("The email or password is incorrect"));
+        if (!passwordEncoder.matches(loginDto.password(), user.getPassword())) {
+            throw new UsernameNotFoundException("The email or password is incorrect");
+        }
         Authentication auth = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginDto.email(), loginDto.password())
         );

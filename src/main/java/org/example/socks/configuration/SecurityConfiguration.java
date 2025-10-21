@@ -1,6 +1,7 @@
 package org.example.socks.configuration;
 
 import lombok.RequiredArgsConstructor;
+import org.example.socks.exception.security.CustomAuthenticationEntryPoint;
 import org.example.socks.service.UserService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,6 +24,7 @@ public class SecurityConfiguration {
 
     private final JwtTokenFilter JwtTokenFilter;
     private final UserService userService;
+    private final CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -31,6 +33,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider())
+                .exceptionHandling(httpSecurityExceptionHandlingConfigurer ->
+                        httpSecurityExceptionHandlingConfigurer.authenticationEntryPoint(customAuthenticationEntryPoint))
                 .authorizeHttpRequests(
                         auth -> auth
                                 .requestMatchers(
